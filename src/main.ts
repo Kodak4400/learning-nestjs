@@ -4,7 +4,7 @@ import {
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
 import { Logger } from 'nestjs-pino';
-import path from 'path';
+import * as path from 'path';
 import { AppModule } from './app.module';
 
 async function bootstrap() {

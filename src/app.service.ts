@@ -9,13 +9,13 @@ export class AppService {
 
   async index() {
     const questions = await this.questionService.findAll();
-    this.logger.log(questions);
     return {
       questions: questions,
     };
   }
 
   async ask() {
+    // 仮
     return {
       message: 'Success!!',
     };
@@ -27,9 +27,7 @@ export class AppService {
   }
 
   async completed(question: Question) {
-    console.log('createQuestionDto', question);
     await this.questionService.create(question);
-    // DB登録処理追加予定.
     return question;
   }
 }

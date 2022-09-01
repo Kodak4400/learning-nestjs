@@ -11,10 +11,17 @@
   <body>
     <turbo-frame id='bar'>
       <form action='/questions/completed' method='post'>
-        <label>タイトル</label>
-        {{title}}
-        <label>本文</label>
-        {{question}}
+        <label for='title'>タイトル</label>
+        <p>{{title}}</p>
+        <input id='title' type='hidden' name='title' value='{{title}}' />
+        <label for='question'>本文</label>
+        <p>{{question}}</p>
+        <input
+          id='question'
+          type='hidden'
+          name='question'
+          value='{{question}}'
+        />
         <button
           type='button'
           onclick='location.href="/questions/ask"'

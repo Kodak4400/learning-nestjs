@@ -21,9 +21,6 @@ export class QuestionService {
   }
 
   async create(question: Question) {
-    this.logger.log(question);
-    console.log('title', question.title);
-    console.log('question', question.question);
     return this.prisma.question.create({
       data: {
         id: uuidv4(),

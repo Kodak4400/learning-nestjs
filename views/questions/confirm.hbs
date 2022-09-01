@@ -1,0 +1,33 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Document</title>
+    <script type='module'>
+      import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
+    </script>
+  </head>
+  <body>
+    <turbo-frame id='bar'>
+      <form action='/questions/completed' method='post'>
+        <label for='title'>タイトル</label>
+        <p>{{title}}</p>
+        <input id='title' type='hidden' name='title' value='{{title}}' />
+        <label for='question'>本文</label>
+        <p>{{question}}</p>
+        <input
+          id='question'
+          type='hidden'
+          name='question'
+          value='{{question}}'
+        />
+        <button
+          type='button'
+          onclick='location.href="/questions/ask"'
+        >質問を見直す</button>
+        <button type='submit'>質問する</button>
+      </form>
+    </turbo-frame>
+  </body>
+</html>

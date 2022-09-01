@@ -1,10 +1,13 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
-import { SurveyModule } from './survey/survey.module';
+// import { DatabaseModule } from './database.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { QuestionModule } from './question/question.module';
 
 @Module({
   imports: [
-    SurveyModule,
+    // DatabaseModule,
     LoggerModule.forRoot({
       pinoHttp: {
         useLevel: `${process.env.NODE_ENV}` !== 'production' ? 'info' : 'info',
@@ -29,8 +32,9 @@ import { SurveyModule } from './survey/survey.module';
         },
       },
     }),
+    QuestionModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}

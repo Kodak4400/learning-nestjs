@@ -1,23 +1,35 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { SurveyService } from './survey/survey.service';
+import { Question } from './question/interface/question.interface';
+import { QuestionService } from './question/question.service';
 
 @Injectable()
 export class AppService {
   private readonly logger = new Logger();
-  constructor(private surveyService: SurveyService) {}
+  constructor(private questionService: QuestionService) {}
 
   async index() {
-    const surveys = await this.surveyService.findAll();
+    const questions = await this.questionService.findAll();
+    this.logger.log(questions);
     return {
-      message: surveys,
+      questions: questions,
     };
   }
 
-  async detail(id: string) {
-    const survey = await this.surveyService.findById(id);
+  async ask() {
     return {
-      id: survey.id,
-      text: survey.text,
+      message: 'Success!!',
     };
+  }
+
+  async confirm(question: Question) {
+    // validation処理追加予定.
+    return question;
+  }
+
+  async completed(question: Question) {
+    console.log('createQuestionDto', question);
+    await this.questionService.create(question);
+    // DB登録処理追加予定.
+    return question;
   }
 }

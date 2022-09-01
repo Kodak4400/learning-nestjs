@@ -9,9 +9,13 @@
     </script>
   </head>
   <body>
+    <button
+      type='button'
+      onClick='location.href="/questions/ask"'
+    >質問する</button>
     <ul>
-      {{#each message}}
-        <li>{{id}} {{text}}</li>
+      {{#each questions}}
+        <li>{{id}} {{title}} {{question}}</li>
       {{/each}}
     </ul>
   </body>

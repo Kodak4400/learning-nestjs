@@ -10,11 +10,16 @@
   </head>
   <body>
     <turbo-frame id='bar'>
-      {{id}}
-      <form action='/detail'>
-        <label for='txt'>テキスト:</label>
-        <input id='txt' type='text' name='text' value='text' />
-        <input type='submit' />
+      <form action='/questions/completed' method='post'>
+        <label>タイトル</label>
+        {{title}}
+        <label>本文</label>
+        {{question}}
+        <button
+          type='button'
+          onclick='location.href="/questions/ask"'
+        >質問を見直す</button>
+        <button type='submit'>質問する</button>
       </form>
     </turbo-frame>
   </body>

@@ -1,47 +1,74 @@
 # Learning-NestJS
 
-以下を使って、NestJS でなにか作る。。。
+## 構築に必要なもの
 
 - NestJS(Adapter: Fastify)
 - DB => dev:SQLite, prod:未定
-- Template => Handlebars
+- Template => Handlebars(Hotwire(Turbo))
 - Logger => pino, pino-http
 - ORM => Prisma
 
-# 設計
+## 設計
 
-## 作るもの
+### 作るもの
 
-なんか、簡単なアンケートフォーム
+簡単な StackOverflow に似せたフォーム
 
-## 構成
+### 画面設計（仮）
 
-### 画面（仮）
-
-- トップ画面: アンケートリスト（'/'）
-- アンケート画面 1: アンケート入力フォーム（'/:id'）
-- アンケート画面 2: アンケート入力確認画面（'/:id/confirm'）
-- アンケート画面 3: アンケート完了画面（'/:id/completed'）
-- アンケート画面 4: アンケート回答済み画面（'/:id/answered'）
-- アンケート画面 5: アンケート期限切れ画面（'/:id/expired'）
+- トップ画面: トップ & Questions リスト（'/'）
+- Question 表示画面 1: Questions リスト（'/questions'）
+- Question 作成画面 1: Question 作成入力フォーム（'/questions/ask'）
+- Question 作成画面 2: Question 作成入力フォーム（'/questions/confirm'）
+- Question 作成画面 3: Question 作成入力フォーム（'/questions/completed'）
+- Questions 表示画面 1: Questions 表示画面（'/questions/:id'）
 - 404 エラー画面
 - その他エラー画面
 
-### アンケートフォームの内容
+### MVC 設計
 
-保留
+#### app
 
-### NestJS（仮）
+- Controller / Service
+  - Get('')
+  - Get('/questions') => questions / findAll()
+  - Get('/questions/ask')
+  - Get('/questions/confirm')
+  - Get('/questions/completed') => questions / create()
+  - Get('/questions/:id/:title') => questions / findById()
 
-Controller / Service / Module
+#### question
 
-- survey 　かなぁ、、、
+- Service
+  - findAll()
+  - findById()
+  - create()
+  - patch() => 要検討
+  - delete() => 要検討
 
-#### survey
+### DB（Model）
 
-- Controller
-  - Get('') => findAll()
-  - Get(':id') => findById()
-  - Post('') => create()
-    // - Patch(':id') => 要検討
-    // - Delete(':id') => 要検討
+```ts
+model Question {
+  id  String @id
+  title String
+  question String
+}
+```
+
+### DTO
+
+```ts
+export class CreateQuestionDto {
+  title: string;
+  question: string;
+}
+```
+
+## Prisma(SQLite)
+
+```
+yarn prisma migrate dev --name init
+sqlite3 db/sqlitedb.db
+.schema
+```

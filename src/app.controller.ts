@@ -1,5 +1,19 @@
-import { Body, Controller, Get, Logger, Post, Render } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Post,
+  Render,
+  Req,
+  Res,
+  UseFilters,
+  UseGuards,
+} from '@nestjs/common';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { AppService } from './app.service';
+import { CsrfGuard } from './csrf/csrf.guard';
+import { HttpExceptionFilter } from './exception/http-exception.filter';
 import { CreateQuestionDto } from './question/dto/create-question';
 
 @Controller()
@@ -21,13 +35,27 @@ export class AppController {
 
   @Post('questions/confirm')
   @Render('questions/confirm.hbs')
-  async confirm(@Body() createQuestionDto: CreateQuestionDto) {
-    return this.appService.confirm(createQuestionDto);
+  async confirm(
+    @Res() rep: FastifyReply,
+    @Body() createQuestionDto: CreateQuestionDto,
+  ) {
+    return this.appService.confirm(rep, createQuestionDto);
   }
 
   @Post('questions/completed')
   @Render('questions/completed.hbs')
-  async completed(@Body() createQuestionDto: CreateQuestionDto) {
+  @UseGuards(CsrfGuard)
+  @UseFilters(new HttpExceptionFilter())
+  async completed(
+    @Req() req: FastifyRequest,
+    @Body() createQuestionDto: CreateQuestionDto,
+  ) {
     return this.appService.completed(createQuestionDto);
+  }
+
+  @Get('questions/500')
+  @Render('questions/500.hbs')
+  async 500() {
+    return '';
   }
 }

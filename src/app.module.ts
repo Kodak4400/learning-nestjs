@@ -3,6 +3,7 @@ import { LoggerModule } from 'nestjs-pino';
 // import { DatabaseModule } from './database.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { CsrfModule } from './csrf/csrf.module';
 import { QuestionModule } from './question/question.module';
 
 @Module({
@@ -33,8 +34,15 @@ import { QuestionModule } from './question/question.module';
       },
     }),
     QuestionModule,
+    CsrfModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  // configure(consumer: MiddlewareConsumer) {
+  //   consumer
+  //     .apply(CsrfMiddleware)
+  //     .forRoutes({ path: 'questions/completed', method: RequestMethod.POST });
+  // }
+}

@@ -1,3 +1,6 @@
+import fastifyCookie from '@fastify/cookie';
+import fastifyCsrf from '@fastify/csrf-protection';
+// import View from '@fastify/view';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -10,11 +13,22 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
-    new FastifyAdapter({ bodyLimit: 10048576 }),
+    new FastifyAdapter(),
     {
       bufferLogs: true,
     },
   );
+
+  await app.register(fastifyCookie);
+  await app.register(fastifyCsrf);
+  // app.register(fastifyCsrf, { cookieOpts: { signed: true } });
+  // app.register(View, {
+  //   engine: {
+  //     handlebars: require('hbs'),
+  //   },
+  //   templates: path.resolve(__dirname, '..', 'views'),
+  // });
+
   app.useLogger(app.get(Logger));
 
   app.useStaticAssets({

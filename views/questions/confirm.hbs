@@ -12,16 +12,17 @@
     <turbo-frame id='bar'>
       <form action='/questions/completed' method='post'>
         <label for='title'>タイトル</label>
-        <p>{{title}}</p>
+        <p>{{question.title}}</p>
         <input id='title' type='hidden' name='title' value='{{title}}' />
         <label for='question'>本文</label>
-        <p>{{question}}</p>
+        <p>{{question.question}}</p>
         <input
           id='question'
           type='hidden'
           name='question'
-          value='{{question}}'
+          value='{{question.question}}'
         />
+        <input type='hidden' name='_csrf' value='{{token}}' />
         <button
           type='button'
           onclick='location.href="/questions/ask"'

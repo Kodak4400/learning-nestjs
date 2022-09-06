@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { FastifyReply } from 'fastify';
 import { Question } from './question/interface/question.interface';
 import { QuestionService } from './question/question.service';
 
@@ -21,9 +22,15 @@ export class AppService {
     };
   }
 
-  async confirm(question: Question) {
+  async confirm(rep: FastifyReply, question: Question) {
     // validation処理追加予定.
-    return question;
+    return {
+      token: rep.generateCsrf({
+        httpOnly: true,
+        // secure: true, // httpsになったら有効化
+      }),
+      question,
+    };
   }
 
   async completed(question: Question) {

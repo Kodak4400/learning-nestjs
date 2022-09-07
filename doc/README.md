@@ -1,8 +1,62 @@
-# NestJS を使って開発してわかったこと。
+# NestJS を使って開発してわかったことを以下に纏める。
+
+## エラーハンドリングについて、エラー時に HTML テンプレートを返す場合は、Express or Fastify から直接 HTML のテンプレート を Response で返す。
+
+NestJS のエラーは Exception Filter でハンドリングを行う。
+この Exception Filter の中から、HTML のテンプレート を Response で返す場合は、`@Render`デコレータが使えないので、Express or Fastify から直接 HTML のテンプレート を Response で返す。
+
+なぜ、Exception Filter の中で`@Render`デコレータが使えない？
+
+`@Render`には以下注意書きがあります。
+
+```
+Route handler method Decorator.  Defines a template to be rendered by the controller.
+```
+
+なので、`@Render`デコレータはコントローラーでしか機能しません。
+
+そうなると、Exception Filter の中から、HTML のテンプレート を Response で返す場合は、Express or Fastify から直接 HTML のテンプレート を Response で返す必要があります。
+
+## Fastify を使ってはいけないパターンがある。
+
+複数あるかもしれないので、分かり次第追記する。。。。
+
+### 1. サーバーから HTML を返すようなパターン。
+
+Fastify を使うメリットは、JSON 形式の Response を返す速度にある。（たぶん。。。）
+なので、HTML のテンプレート を Response で返すと、そもそもそんなにメリットはないだろう。。。（内部がどんなに早くても、HTML をジェネレートするのに時間がかかるため。。。）
+
+それを踏まえた上で、Fastify を使いたい場合は以下に注意する。
+
+Fastify には、HTML のテンプレート を Response で返す仕組みがデフォルトで存在しない。そのため、HTML のテンプレート を Response で返す場合は、ライブラリを使用する（`@fastify/view`）
+
+しかし、このライブラリが NestJS のライブラリと競合して、うまく動かないケースがある。
+
+```sh
+/.../learning-nestjs/node_modules/fastify/lib/decorate.js:23
+throw new FST_ERR_DEC_ALREADY_PRESENT(name)
+      ^
+FastifyError: The decorator 'view' has already been added!
+at decorate (/.../learning-nestjs/node_modules/fastify/lib/decorate.js:23:11)
+at Object.decorateFastify [as decorate] (/.../learning-nestjs/node_modules/fastify/lib/decorate.js:67:3)
+at fastifyView (/.../learning-nestjs/node_modules/@fastify/view/index.js:117:11)
+at Plugin.exec (/.../learning-nestjs/node_modules/avvio/plugin.js:130:19)
+at Boot.loadPlugin (/.../learning-nestjs/node_modules/avvio/plugin.js:272:10)
+at processTicksAndRejections (internal/process/task_queues.js:82:21)
+[11:57:51] File change detected. Starting incremental compilation...
+```
+
+そもそも、NestJS には、`@Render`デコレータがあるのに、わざわざ Express or Fastify から直接 HTML のテンプレート を Response で返すパターンがあるのか？
+
+=> [ある](#エラーハンドリングについてエラー時に-html-テンプレートを返す場合はexpress-or-fastify-から直接-html-のテンプレート-を-response-で返す)
 
 ## NestJS の Middleware がライブラリを認識しないことがある。
 
-`@fastify/cookie`を使って、Guard と Middleware で Request の Cookie をパースできているか確認する。
+こちらは現在、原因不明なので、事象だけ記載しておく。
+
+`@fastify/cookie`を使って、Guard と Middleware で Request の Cookie がパースできているか確認する。
+
+ライブラリは、`register`を使って読み込んでおく。
 
 ```ts
 import fastifyCookie from '@fastify/cookie';
@@ -59,14 +113,18 @@ middleware undefined
 guard { _csrf: 'xxxx' }
 ```
 
-Middleware では、ライブラリが効いていない。
-原因は、今のところ謎。
-（NestJS に対して、ライブラリを反映しているので、Middleware は、もしかすると Express or Fastify そのままの機能を持ってきているだけなのかもしれない。。。だから、ライブラリが効かないのかも？）
+Middleware は、Cookie のパースができておらず、ライブラリが効いていない。
 
-## エラーハンドリングで思ったこと。
+原因は、今のところ謎。
+
+もしかすると、Middleware は NestJS の機能ではなく、Express or Fastify の機能をそのまま持ってきているだけなのかもしれない。。。
+
+であれば、NestJS に対してライブラリを適用しているので、ライブラリが効かないことも納得できる。
+
+## エラーハンドリングについて、エラー時のフォーマットをジェネリクス等を使って指定できない。
 
 NestJS のエラーは Exception Filter でハンドリングを行う。
-たとえば、HttpException を発生させたい時、以下のように書いて throw()させる必要がある。
+たとえば、HttpException を発生させたい時は、以下のように書いて throw()させる必要がある。
 
 ```ts
 throw new HttpException(
@@ -79,8 +137,9 @@ throw new HttpException(
 );
 ```
 
-この`new HttpException`は厄介で、型を指定することができない。（ジェネリクスで指定できない）
-つまり、エラーのフォーマットを固定化できない。
+この`new HttpException`は厄介で、型を指定することができない。（ジェネリクス等を使って型指定できない）
+
+そのため、エラー時のフォーマットを固定化できない。
 
 なので、ラッパーオブジェクトを作ってやると良さそう。
 
@@ -124,7 +183,8 @@ NestJS の CSRF 対応は、基本的に（Express or Fastify の）ライブラ
 https://docs.nestjs.com/security/csrf
 
 ただし、Express or Fastify のライブラリのすべての機能がそのまま NestJS で使えるとは限らない。
-たとえば、Fastify の CSRF ライブラリ（'@fastify/csrf-protection'）を使ってみましょう。
+
+たとえば、Fastify の CSRF ライブラリ（'@fastify/csrf-protection'）を使ってみる。
 
 - Fastify の場合
 
@@ -156,13 +216,15 @@ app.csrfProtection; // 使えない。。。。
 
 なぜか？
 
-おそらく、NestJS の 1 つ 1 つの機能は、疎結合で実装するからです。
-機能ごとの依存関係はモジュールを用いて解決します。
+おそらく、NestJS の 1 つ 1 つの機能は、疎結合で実装するから。
 
-このルールに合わないようなライブラリの機能はおそらく使えないのだと思います。
+機能ごとの依存関係はモジュールを用いて解決する必要がある。
 
-以下は、`@fastify/csrf-protection`のコードの抜粋です。
-おそらくすべて（Express or Fastify の）ライブラリに言えることですが、`decorate`で呼び出すことのできる機能は使用できないでしょう。
+このルールに合わないようなライブラリの機能はおそらく使えない（のだと思う）。
+
+以下は、`@fastify/csrf-protection`のコードの抜粋。
+
+おそらくすべて（Express or Fastify の）ライブラリに言えることだが、`decorate`で呼び出すことのできる機能は使用できないだろう。。。
 
 ```ts
 if (sessionPlugin === '@fastify/secure-session') {
@@ -178,10 +240,9 @@ fastify.decorate('csrfProtection', csrfProtection); // <= 使用不可
 
 ではどうするのか？
 
-1. `generateCsrf`は使用可能なので、そのまま使う。
-2. `csrfProtection`は使用不可なので、自前で実装する。
+`generateCsrf`は使って、`csrfProtection`は自前で実装する。
 
-- 1. `generateCsrf`は使用可能なので、そのまま使う。
+`generateCsrf`は以下のようにそのまま使う。
 
 ```ts
 // app.service.ts
@@ -199,7 +260,7 @@ export class AppService {
 }
 ```
 
-- 2. `csrfProtection`は使用不可なので、自前で実装する。
+`csrfProtection`は以下のように自前で実装する。
 
 実装箇所は、Guard が適切なような気がした。
 
@@ -243,3 +304,5 @@ export class CsrfGuard implements CanActivate {
   }
 }
 ```
+
+これで、CSRF 対応が可能。

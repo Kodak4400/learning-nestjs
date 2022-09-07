@@ -1,7 +1,7 @@
 import CSRF from '@fastify/csrf';
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { FastifyRequest } from 'fastify';
-import { HttpExceptionResponse } from 'src/types/http-response';
+import { HttpExceptionResponse } from 'src/types/http-exception-response';
 
 @Injectable()
 export class CsrfGuard implements CanActivate {
@@ -13,6 +13,7 @@ export class CsrfGuard implements CanActivate {
       // ExceptionFilter を通したい場合は、HttpExceptionを発生させる。
       throw new HttpExceptionResponse(
         500,
+        'HttpException',
         'APP_CSRF_NOT_SECRET',
         'no secret information at CsrfGuard.',
       );
@@ -32,6 +33,7 @@ export class CsrfGuard implements CanActivate {
     if (!tokens.verify(secret, getToken(request), getUserInfo(request))) {
       throw new HttpExceptionResponse(
         500,
+        'HttpException',
         'APP_CSRF_VERIFY_ERROR',
         'secret and token verify error at CSRF Guard.',
       );

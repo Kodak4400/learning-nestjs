@@ -14,7 +14,8 @@ import { FastifyReply, FastifyRequest } from 'fastify';
 import { AppService } from './app.service';
 import { CsrfGuard } from './csrf/csrf.guard';
 import { HttpExceptionFilter } from './exception/http-exception.filter';
-import { CreateQuestionDto } from './question/dto/create-question';
+import { CreateQuestionDto } from './question/dto/create-question.dto';
+import { QuestionValidationPipe } from './validation/question-validation.pipe';
 
 @Controller()
 export class AppController {
@@ -35,9 +36,10 @@ export class AppController {
 
   @Post('questions/confirm')
   @Render('questions/confirm.hbs')
+  @UseFilters(new HttpExceptionFilter())
   async confirm(
     @Res() rep: FastifyReply,
-    @Body() createQuestionDto: CreateQuestionDto,
+    @Body(new QuestionValidationPipe()) createQuestionDto: CreateQuestionDto,
   ) {
     return this.appService.confirm(rep, createQuestionDto);
   }
@@ -48,7 +50,7 @@ export class AppController {
   @UseFilters(new HttpExceptionFilter())
   async completed(
     @Req() req: FastifyRequest,
-    @Body() createQuestionDto: CreateQuestionDto,
+    @Body(new QuestionValidationPipe()) createQuestionDto: CreateQuestionDto,
   ) {
     return this.appService.completed(createQuestionDto);
   }

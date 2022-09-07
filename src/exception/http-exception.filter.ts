@@ -6,11 +6,12 @@ import {
   Logger,
 } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
+import { HttpExceptionResponse } from 'src/types/http-exception-response';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger();
-  catch(exception: HttpException, host: ArgumentsHost) {
+  catch(exception: HttpExceptionResponse, host: ArgumentsHost) {
     this.logger.error(exception.getResponse());
 
     const ctx = host.switchToHttp();
@@ -34,7 +35,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [11:57:51] File change detected. Starting incremental compilation...
     */
 
-    // 苦肉の対応。（これくらいしかできない。。。）
-    response.redirect('/questions/500');
+    switch (exception.exception) {
+      case 'BadRequestException':
+        this.logger.error(exception.getValidateErrors());
+        break;
+      default:
+        // 苦肉の対応。（これくらいしかできない。。。）
+        response.redirect('/questions/500');
+    }
   }
 }

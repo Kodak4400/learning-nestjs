@@ -5,15 +5,15 @@ export class HttpExceptionResponse extends HttpException {
   private validateErrors: ValidationError[] = [];
 
   constructor(
+    readonly functionName: string = 'unknown functionName',
     readonly statusCode: number = 500,
-    readonly exception: string = 'UnknownException',
     readonly code: string = 'APP_UNKNOWN_ERROR',
-    readonly error: string = 'unknown error',
+    readonly error: Error = new Error('unknown error'),
   ) {
     super(
       {
+        functionName,
         statusCode,
-        exception,
         code,
         error,
       },

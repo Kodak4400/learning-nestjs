@@ -1,5 +1,89 @@
 # NestJS を使って開発してわかったことを以下に纏める。
 
+## プロバイダーを Mock する方法
+
+たとえば、PrismaService を Mock させたい場合、以下 2 つの方法で Mock が可能。
+
+- （1）：　カスタムプロバイダーを作る
+
+```ts
+const mockClassCatsService = class {
+  findAll() {
+    return 'hello';
+  }
+};
+const customProvider = {
+  provide: PrismaService,
+  useFactory: (optionsProvider) => {
+    return {
+      question: {
+        findMany() {
+          return optionsProvider.findAll();
+        },
+      },
+    };
+  },
+  inject: [mockClassCatsService],
+};
+const module: TestingModule = await Test.createTestingModule({
+  providers: [QuestionService, customProvider, mockClassCatsService],
+}).compile();
+```
+
+- （2）：　そのまま jest で Mock する
+
+```ts
+(PrismaService as jest.Mock).mockImplementation(() => {
+  return {
+    question: {
+      async findMany(): Promise<Question[]> {
+        return [
+          { id: 'a1', title: 'b1', question: 'b1' },
+          { id: 'a2', title: 'b2', question: 'b2' },
+          { id: 'a3', title: 'b3', question: 'b3' },
+        ];
+      },
+    },
+  };
+});
+const module: TestingModule = await Test.createTestingModule({
+  providers: [QuestionService, PrismaService],
+}).compile();
+service = module.get<QuestionService>(QuestionService);
+```
+
+どちらの方法でも問題ないが、(2)の方法が楽だし、わかりやすい。
+
+## NestJS でも Result 型は有効だと思う。
+
+`throw new HttpException()`を宣言したからといって、直ぐに`Exception filter`が動くわけではない。
+
+たとえば、サービスクラスでエラーが発生したとしても、かならずコントローラーを経由して`Exception filter`に行く。
+
+そのため、Result 型の恩恵は十分に受けることが可能。
+
+サービスクラスは、プロバイダーを呼ぶことが多いため、各プロバイダー側で Result 型へ変換し、サービスクラスは`if`でハンドリングする。
+
+```ts
+async findAll(): Promise<Result<Question[], HttpExceptionResponse>> {
+  try {
+    return new Success(await this.prisma.question.findMany());
+  } catch (err) {
+    if (err instanceof Error) {
+      return new Failure(
+        new HttpExceptionResponse(
+          this.findAll.name,
+          500,
+          'APP_DB_ACCESS_ERROR',
+          err,
+        ),
+      );
+    }
+    return new Failure(new HttpExceptionResponse(this.findAll.name));
+  }
+}
+```
+
 ## Pipe の途中でルートハンドラを変更できない。
 
 あたり前かもしれないが、Pipe はルートハンドラに入ったあとの、引数をセットする箇所で動作する。

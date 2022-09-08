@@ -12,10 +12,10 @@ export class CsrfGuard implements CanActivate {
     if (!secret) {
       // ExceptionFilter を通したい場合は、HttpExceptionを発生させる。
       throw new HttpExceptionResponse(
+        this.canActivate.name,
         500,
-        'HttpException',
         'APP_CSRF_NOT_SECRET',
-        'no secret information at CsrfGuard.',
+        new Error('no secret information at CsrfGuard.'),
       );
 
       /*
@@ -32,10 +32,10 @@ export class CsrfGuard implements CanActivate {
     const tokens = new CSRF();
     if (!tokens.verify(secret, getToken(request), getUserInfo(request))) {
       throw new HttpExceptionResponse(
+        this.canActivate.name,
         500,
-        'HttpException',
         'APP_CSRF_VERIFY_ERROR',
-        'secret and token verify error at CSRF Guard.',
+        new Error('secret and token verify error at CSRF Guard.'),
       );
       // return false;
     }

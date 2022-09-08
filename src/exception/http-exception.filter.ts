@@ -35,9 +35,12 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [11:57:51] File change detected. Starting incremental compilation...
     */
 
-    switch (exception.exception) {
-      case 'BadRequestException':
+    switch (exception.code) {
+      case 'APP_VALIDATION_ERROR':
         this.logger.error(exception.getValidateErrors());
+        break;
+      case 'MockException':
+        console.log('test error.');
         break;
       default:
         // 苦肉の対応。（これくらいしかできない。。。）

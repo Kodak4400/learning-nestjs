@@ -3,18 +3,19 @@ import {
   Controller,
   Get,
   Logger,
+  Param,
   Post,
   Render,
-  Req,
   Res,
   UseFilters,
   UseGuards,
 } from '@nestjs/common';
-import { FastifyReply, FastifyRequest } from 'fastify';
+import { FastifyReply } from 'fastify';
 import { AppService } from './app.service';
 import { CsrfGuard } from './csrf/csrf.guard';
 import { HttpExceptionFilter } from './exception/http-exception.filter';
 import { CreateQuestionDto } from './question/dto/create-question.dto';
+import type { QuestionId } from './question/interface/question.interface';
 import { QuestionValidationPipe } from './validation/question-validation.pipe';
 
 @Controller()
@@ -24,6 +25,7 @@ export class AppController {
 
   @Get('')
   @Render('index.hbs')
+  @UseFilters(new HttpExceptionFilter())
   async index() {
     return this.appService.index();
   }
@@ -32,6 +34,12 @@ export class AppController {
   @Render('questions/ask.hbs')
   async ask() {
     return this.appService.ask();
+  }
+
+  @Get('questions/:id')
+  @Render('questions/detail.hbs')
+  async detail(@Param() params: QuestionId) {
+    return this.appService.detail(params);
   }
 
   @Post('questions/confirm')
@@ -48,10 +56,7 @@ export class AppController {
   @Render('questions/completed.hbs')
   @UseGuards(CsrfGuard)
   @UseFilters(new HttpExceptionFilter())
-  async completed(
-    @Req() req: FastifyRequest,
-    @Body(new QuestionValidationPipe()) createQuestionDto: CreateQuestionDto,
-  ) {
+  async completed(@Body() createQuestionDto: CreateQuestionDto) {
     return this.appService.completed(createQuestionDto);
   }
 

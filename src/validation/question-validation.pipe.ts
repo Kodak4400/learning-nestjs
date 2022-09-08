@@ -13,10 +13,10 @@ export class QuestionValidationPipe implements PipeTransform<Question> {
     const errors = await validate(object);
     if (errors.length > 0) {
       const exp = new HttpExceptionResponse(
+        this.transform.name,
         500,
-        'BadRequestException',
         'APP_VALIDATION_ERROR',
-        'question validation error.',
+        new Error('question validation error.'),
       );
       exp.setValidateErrors(errors);
       throw exp;

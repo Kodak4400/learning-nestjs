@@ -1,6 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { FastifyReply } from 'fastify';
-import { Question } from './question/interface/question.interface';
+import type { QuestionId } from './question/interface/question.interface';
+import {
+  Question,
+  QuestionBody,
+} from './question/interface/question.interface';
 import { QuestionService } from './question/question.service';
 
 @Injectable()
@@ -8,10 +12,13 @@ export class AppService {
   private readonly logger = new Logger();
   constructor(private questionService: QuestionService) {}
 
-  async index() {
-    const questions = await this.questionService.findAll();
+  async index(): Promise<{ questions: Question[] }> {
+    const result = await this.questionService.findAll();
+    if (result.isFailure()) {
+      throw result.error;
+    }
     return {
-      questions: questions,
+      questions: result.value,
     };
   }
 
@@ -22,8 +29,15 @@ export class AppService {
     };
   }
 
-  async confirm(rep: FastifyReply, question: Question) {
-    // validation処理追加予定.
+  async detail(params: QuestionId): Promise<Question> {
+    const result = await this.questionService.findById(params.id);
+    if (result.isFailure()) {
+      throw result.error;
+    }
+    return result.value;
+  }
+
+  async confirm(rep: FastifyReply, question: QuestionBody) {
     return {
       token: rep.generateCsrf({
         httpOnly: true,
@@ -33,8 +47,11 @@ export class AppService {
     };
   }
 
-  async completed(question: Question) {
-    await this.questionService.create(question);
-    return question;
+  async completed(question: QuestionBody): Promise<Question> {
+    const result = await this.questionService.create(question);
+    if (result.isFailure()) {
+      throw result.error;
+    }
+    return result.value;
   }
 }

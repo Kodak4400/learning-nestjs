@@ -1,0 +1,11 @@
+@font-face {
+  font-family: 'Bungee Inline';
+  src: url(../BungeeInline-Regular.ttf);
+}
+
+body {
+  margin: 0;
+  font-family: 'Bungee Inline';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

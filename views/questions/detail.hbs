@@ -4,11 +4,69 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>Document</title>
+    <link media='all' rel='stylesheet' src='/css/destyle.css' />
+    <link media='all' rel='stylesheet' src='/css/main.css' />
+    <link media='all' rel='stylesheet' href='/css/questions.css' />
+    <link
+      rel='stylesheet'
+      href='https://unpkg.com/easymde/dist/easymde.min.css'
+    />
+    <script src='https://unpkg.com/easymde/dist/easymde.min.js'></script>
   </head>
-  <body>
-    detail画面
-    <p>{{id}}</p>
-    <p>{{title}}</p>
-    <p>{{question}}</p>
+  <body class='ask-body'>
+    <h1>Detail画面</h1>
+    <div class='ask-flex-container'>
+      <span>
+        <div>ID: {{question.id}}</div>
+        <div>Status: {{question.status}}</div>
+        <div>CreatedAt: {{question.createdAt}}</div>
+        <div>UpdatedAt: {{question.updatedAt}}</div>
+      </span>
+      <br />
+
+      <label for='title'>タイトル</label>
+      <p class='ask-flex-items'>{{question.title}}</p>
+      <label for='body' class='ask-flex-items'>本文</label>
+      <textarea id='body' name='body'></textarea>
+
+      <h2>回答</h2>
+      <ul class='answers-width'>
+        {{#each answers}}
+          <li>
+            <textarea id='answers-{{id}}' name='body'></textarea>
+          </li>
+        {{/each}}
+      </ul>
+
+      <h2>回答する</h2>
+      <form action='/questions/{{question.id}}/answer' method='post' class="ask-flex-items">
+        <textarea id='answer' name='body'></textarea>
+        <input
+          id='questionId'
+          type='hidden'
+          name='questionId'
+          value='{{question.id}}'
+        />
+        <input type='hidden' name='_csrf' value='{{token}}' />
+        <input type='submit' value='回答する' onClick='getAnswerEasyMDE()' />
+      </form>
+    </div>
+    {{#each answers}}
+      <script>
+        new EasyMDE({ element: document.getElementById('answers-{{id}}') ??
+        undefined, toolbar: false, }).value(`{{body}}`).togglePreview();
+      </script>
+    {{/each}}
+    <script>
+      new EasyMDE({ element: document.getElementById('body') ?? undefined,
+      showIcons: ['code'], toolbar: false, }).value(`{{question.body}}`).togglePreview();
+      document.querySelector('.EasyMDEContainer').classList.add('ask-flex-items');
+
+      const answerEasyMDE = new EasyMDE({ element: document.getElementById('answer') ?? undefined, showIcons: ['code'] });
+
+      const getAnswerEasyMDE = () => {
+        document.getElementById('answer').value = answerEasyMDE.value();
+      }
+    </script>
   </body>
 </html>

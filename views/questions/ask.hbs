@@ -4,20 +4,35 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>Document</title>
+    <link media="all" rel="stylesheet" src="/css/destyle.css" />
+    <link media="all" rel="stylesheet" src="/css/main.css" />
+    <link media="all" rel="stylesheet" href="/css/questions.css" />
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
     <script type='module'>
       import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
     </script>
   </head>
-  <body>
+  <body class='ask-body'>
     <turbo-frame id='bar'>
-      <form action='/questions/confirm' method='post'>
+      <form action='/questions/confirm' method='post' class="ask-flex-container">
         <label for='title'>タイトル</label>
-        <input id='title' type='text' name='title' />
-        <label for='question'>本文<label>
-        <input id='question' type='textarea' name='question' />
+        <input id='title' type='text' name='title' class="ask-flex-items"/>
 
-        <input type='submit' value='質問を確認する' />
+        <label for='body' class="ask-flex-items">本文<label>
+        <textarea id='body' name='body'></textarea>
+
+        <input type='submit' value='質問を確認する' onclick='getEasyMDE()' />
       </form>
+      <script>
+        const easyMDE = new EasyMDE({
+          element: document.getElementById('body') ?? undefined,
+          showIcons: ['code'],
+        });
+        const getEasyMDE = () => {
+          document.getElementById('body').value = easyMDE.value();
+        }
+      </script>
     </turbo-frame>
   </body>
 </html>

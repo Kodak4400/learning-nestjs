@@ -33,9 +33,10 @@
   - Get('')
   - Get('/questions') => questions / findAll()
   - Get('/questions/ask')
-  - Get('/questions/confirm')
-  - Get('/questions/completed') => questions / create()
-  - Get('/questions/:id/:title') => questions / findById()
+  - Post('/questions/confirm')
+  - Post('/questions/completed') => questions / create()
+  - Get('/questions/:id') => questions / findById()
+  - Post('/questions/:id/answer') => answers / create()
 
 #### question
 
@@ -52,7 +53,22 @@
 model Question {
   id  String @id
   title String
-  question String
+  body String
+  status String
+  answer Answer[]
+  createAt Int
+  updateAt Int
+}
+```
+
+```ts
+model Answer {
+  id  String @id
+  questionId String
+  body String
+  createAt Int
+  updateAt Int
+  question Question @relation(fields: [questionId], references: [id])
 }
 ```
 

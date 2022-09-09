@@ -1,0 +1,25 @@
+.ask-body {
+  width: 80%;
+  margin: 0 auto;
+  max-width: 500px;
+}
+
+.ask-flex-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.ask-flex-items {
+  width: 100%;
+}
+
+.answers-width {
+  width: 100%;
+  list-style: none;
+}
+
+.answers-flex-items {
+  height: 30px;
+}

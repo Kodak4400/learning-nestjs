@@ -13,5 +13,22 @@ datasource db {
 model Question {
   id  String @id
   title String
-  question String
+  body String
+  status String
+  answer Answer[]
+  createdAt String
+  updatedAt String
+
+  @@unique([id])
+}
+
+model Answer {
+  id  String @id
+  questionId String
+  body String
+  createdAt String
+  updatedAt String
+  question Question @relation(fields: [questionId], references: [id])
+
+  @@unique([id])
 }

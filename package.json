@@ -5,8 +5,13 @@
   "author": "",
   "private": true,
   "license": "UNLICENSED",
+  "workspaces": [
+    "views"
+  ],
   "scripts": {
+    "ws:build": "yarn workspaces run tsc --outDir ../public/js",
     "prisma": "env-cmd -f .env.development npx prisma",
+    "prisma:studio": "env-cmd -f .env.development npx prisma studio",
     "prebuild": "rimraf dist",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

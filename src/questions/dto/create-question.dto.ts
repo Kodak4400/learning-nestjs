@@ -7,5 +7,5 @@ export class CreateQuestionDto {
 
   @IsString()
   @Length(1)
-  question: string;
+  body: string;
 }

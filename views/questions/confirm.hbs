@@ -4,31 +4,38 @@
     <meta http-equiv='X-UA-Compatible' content='IE=edge' />
     <meta name='viewport' content='width=device-width, initial-scale=1.0' />
     <title>Document</title>
+    <link media='all' rel='stylesheet' src='/css/destyle.css' />
+    <link media='all' rel='stylesheet' src='/css/main.css' />
+    <link media='all' rel='stylesheet' href='/css/questions.css' />
+    <link rel='stylesheet' href='https://unpkg.com/easymde/dist/easymde.min.css' />
+    <script src='https://unpkg.com/easymde/dist/easymde.min.js'></script>
     <script type='module'>
       import hotwiredTurbo from 'https://cdn.skypack.dev/@hotwired/turbo';
     </script>
   </head>
-  <body>
+  <body class='ask-body'>
     <turbo-frame id='bar'>
-      <form action='/questions/completed' method='post'>
+      <form action='/questions/completed' method='post' class='ask-flex-container'>
         <label for='title'>タイトル</label>
-        <p>{{question.title}}</p>
-        <input id='title' type='hidden' name='title' value='{{title}}' />
-        <label for='question'>本文</label>
-        <p>{{question.question}}</p>
-        <input
-          id='question'
-          type='hidden'
-          name='question'
-          value='{{question.question}}'
-        />
+        <p id='title' class='ask-flex-items'>{{question.title}}</p>
+        <input type='hidden' name='title' value='{{question.title}}' />
+
+        <label for='body' class='ask-flex-items'>本文</label>
+        <textarea id='body'></textarea>
+        <input type='hidden' name='body' value='{{question.body}}' />
+
         <input type='hidden' name='_csrf' value='{{token}}' />
-        <button
-          type='button'
-          onclick='location.href="/questions/ask"'
-        >質問を見直す</button>
-        <button type='submit'>質問する</button>
+
+        <span>
+          <button type='submit'>質問する</button>
+          <button type='button' onclick='location.href="/questions/ask"'>見直す</button>
+        </span>
       </form>
+      <script>
+        const confirmEasyMDE = new EasyMDE({ element: document.getElementById('body') ?? undefined, toolbar: false, status: ["code"]
+        }).value(`{{question.body}}`).togglePreview();
+        document.querySelector('.EasyMDEContainer').classList.add('ask-flex-items')
+      </script>
     </turbo-frame>
   </body>
 </html>

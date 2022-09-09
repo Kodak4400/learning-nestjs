@@ -12,8 +12,6 @@ import { HttpExceptionResponse } from 'src/types/http-exception-response';
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger();
   catch(exception: HttpExceptionResponse, host: ArgumentsHost) {
-    this.logger.error(exception.getResponse());
-
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
     // const request = ctx.getRequest<FastifyRequest>();
@@ -35,16 +33,27 @@ export class HttpExceptionFilter implements ExceptionFilter {
       [11:57:51] File change detected. Starting incremental compilation...
     */
 
-    switch (exception.code) {
-      case 'APP_VALIDATION_ERROR':
-        this.logger.error(exception.getValidateErrors());
-        break;
-      case 'MockException':
-        console.log('test error.');
-        break;
-      default:
-        // 苦肉の対応。（これくらいしかできない。。。）
-        response.redirect('/questions/500');
+    // 共通処理: ログを出力する。
+    this.logger.error(exception.getResponse());
+
+    if (exception.statusCode === 404) {
+      return response.status(303).redirect('/404');
+    }
+
+    if (exception.statusCode === 500) {
+      switch (exception.code) {
+        case 'APP_QUESTION_DB_ERROR':
+        case 'APP_ANSWER_DB_ERROR':
+          break;
+        case 'APP_QUESTION_VALIDATION_ERROR':
+        case 'APP_ANSWER_VALIDATION_ERROR':
+          // Validation error時は、Validation errorの詳細をログに出す。
+          this.logger.error(exception.getValidateErrors());
+          break;
+        default:
+          // 苦肉の対応。（これくらいしかできない。。。）
+          response.status(303).redirect('/questions/500');
+      }
     }
   }
 }

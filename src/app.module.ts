@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from 'nestjs-pino';
+import { AnswerModule } from './answers/answer.module';
 // import { DatabaseModule } from './database.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { CsrfModule } from './csrf/csrf.module';
-import { QuestionModule } from './question/question.module';
+import { QuestionModule } from './questions/question.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { QuestionModule } from './question/question.module';
       },
     }),
     QuestionModule,
+    AnswerModule,
     CsrfModule,
   ],
   controllers: [AppController],

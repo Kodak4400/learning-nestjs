@@ -2,12 +2,12 @@ import { ArgumentMetadata, Injectable, PipeTransform } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { HttpExceptionResponse } from 'src/types/http-exception-response';
-import type { Question } from '../questions/interface/question.interface';
+import type { Answer } from '../answers/interface/answer.interface';
 
 @Injectable()
-export class QuestionValidationPipe implements PipeTransform<Question> {
-  async transform(value: Question, { metatype }: ArgumentMetadata) {
-    const object: Question = plainToInstance(metatype, value);
+export class AnswerValidationPipe implements PipeTransform<Answer> {
+  async transform(value: Answer, { metatype }: ArgumentMetadata) {
+    const object: Answer = plainToInstance(metatype, value);
 
     // ここで、DTOにデコレートしたバリデーション処理を実行している。
     const errors = await validate(object);
@@ -15,8 +15,8 @@ export class QuestionValidationPipe implements PipeTransform<Question> {
       const exp = new HttpExceptionResponse(
         this.transform.name,
         500,
-        'APP_QUESTION_VALIDATION_ERROR',
-        new Error('question validation error.'),
+        'APP_ANSWER_VALIDATION_ERROR',
+        new Error('answer validation error.'),
       );
       exp.setValidateErrors(errors);
       throw exp;

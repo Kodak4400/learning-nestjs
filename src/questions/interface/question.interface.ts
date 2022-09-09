@@ -4,7 +4,10 @@ export type QuestionId = {
 
 export type QuestionBody = {
   title: string;
-  question: string;
+  body: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export type Question = QuestionId & QuestionBody;
